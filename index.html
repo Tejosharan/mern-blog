@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>InkSpace — MERN Blog Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#fafaf8;--white:#fff;--text:#1a1a1a;--muted:#737373;--border:#e5e5e5;--accent:#e85d04;--accent2:#023e8a;--card:#fff;--tag-bg:#f5f5f0;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;}
+
+nav{background:#fff;border-bottom:1px solid var(--border);padding:1rem 2.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.logo{font-family:'Lora',serif;font-size:1.5rem;font-weight:700;letter-spacing:-.01em;}
+.logo span{color:var(--accent);}
+.nav-right{display:flex;align-items:center;gap:1rem;}
+.nav-search{display:flex;align-items:center;gap:.5rem;background:var(--bg);border:1px solid var(--border);border-radius:50px;padding:.45rem 1rem;}
+.nav-search input{border:none;background:transparent;outline:none;font-size:.85rem;font-family:'Inter',sans-serif;width:180px;}
+.nav-btn{background:var(--accent);color:#fff;border:none;padding:.5rem 1.2rem;border-radius:50px;font-size:.82rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+.nav-btn.ghost{background:transparent;color:var(--text);border:1px solid var(--border);}
+.nav-btn.ghost:hover{border-color:var(--accent);color:var(--accent);}
+
+/* SCREENS */
+.screen{display:none;}.screen.active{display:block;}
+
+/* HOME */
+.hero-strip{background:var(--accent2);color:#fff;padding:3.5rem 2.5rem;display:flex;gap:3rem;align-items:center;}
+.hero-strip h1{font-family:'Lora',serif;font-size:clamp(2rem,4vw,3rem);font-weight:700;line-height:1.15;max-width:500px;}
+.hero-strip h1 em{font-style:italic;color:#93c5fd;}
+.hero-strip p{color:rgba(255,255,255,.7);font-size:.9rem;margin-top:.75rem;max-width:400px;line-height:1.7;}
+.hero-featured{flex-shrink:0;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:1.25rem;max-width:280px;cursor:pointer;}
+.hero-featured .feat-tag{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#93c5fd;margin-bottom:.5rem;}
+.hero-featured .feat-title{font-family:'Lora',serif;font-size:1rem;font-weight:600;line-height:1.4;margin-bottom:.5rem;}
+.hero-featured .feat-meta{font-size:.75rem;color:rgba(255,255,255,.5);}
+
+.tags-bar{padding:1rem 2.5rem;border-bottom:1px solid var(--border);display:flex;gap:.5rem;flex-wrap:wrap;background:#fff;}
+.tag-pill{background:var(--tag-bg);border:1px solid var(--border);border-radius:50px;padding:.35rem .9rem;font-size:.78rem;font-weight:500;cursor:pointer;transition:.2s;}
+.tag-pill.active,.tag-pill:hover{background:var(--accent);color:#fff;border-color:var(--accent);}
+
+.content-area{max-width:1100px;margin:0 auto;padding:2.5rem;display:grid;grid-template-columns:1fr 320px;gap:3rem;}
+@media(max-width:800px){.content-area{grid-template-columns:1fr;padding:1.5rem;}}
+
+.posts-list{}
+.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;}
+.section-head h2{font-family:'Lora',serif;font-size:1.2rem;font-weight:700;}
+.sort-select{background:var(--tag-bg);border:1px solid var(--border);border-radius:8px;padding:.4rem .8rem;font-size:.8rem;font-family:'Inter',sans-serif;outline:none;}
+
+.post-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.5rem;margin-bottom:1.25rem;cursor:pointer;transition:.2s;}
+.post-card:hover{border-color:var(--accent);box-shadow:0 4px 20px rgba(232,93,4,.08);}
+.post-card-top{display:flex;gap:1.25rem;align-items:flex-start;}
+.post-thumb{width:80px;height:80px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:2.5rem;flex-shrink:0;}
+.post-meta{display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem;flex-wrap:wrap;}
+.post-cat{background:rgba(232,93,4,.08);color:var(--accent);border-radius:50px;padding:.15rem .6rem;font-size:.7rem;font-weight:700;}
+.post-date{font-size:.72rem;color:var(--muted);}
+.post-read{font-size:.72rem;color:var(--muted);}
+.post-title{font-family:'Lora',serif;font-size:1.1rem;font-weight:700;line-height:1.4;margin-bottom:.4rem;}
+.post-excerpt{font-size:.83rem;color:var(--muted);line-height:1.6;margin-bottom:.75rem;}
+.post-footer{display:flex;justify-content:space-between;align-items:center;}
+.author-row{display:flex;align-items:center;gap:.5rem;}
+.author-av{width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;}
+.author-name{font-size:.78rem;font-weight:500;}
+.post-likes{font-size:.75rem;color:var(--muted);display:flex;align-items:center;gap:.25rem;}
+
+/* SIDEBAR */
+.sidebar{}
+.sidebar-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1.25rem;}
+.sidebar-title{font-family:'Lora',serif;font-size:.95rem;font-weight:700;margin-bottom:1rem;}
+.trending-item{display:flex;gap:.75rem;align-items:flex-start;padding:.6rem 0;border-bottom:1px solid var(--border);cursor:pointer;}
+.trending-item:last-child{border-bottom:none;}
+.trending-num{font-size:1.2rem;font-weight:700;color:var(--border);min-width:28px;font-family:'Lora',serif;}
+.trending-title{font-size:.82rem;font-weight:600;line-height:1.4;}
+.trending-meta{font-size:.72rem;color:var(--muted);margin-top:.15rem;}
+.tag-cloud{display:flex;flex-wrap:wrap;gap:.4rem;}
+.tag-cloud-item{background:var(--tag-bg);border:1px solid var(--border);border-radius:6px;padding:.3rem .65rem;font-size:.75rem;cursor:pointer;transition:.2s;}
+.tag-cloud-item:hover{background:var(--accent);color:#fff;border-color:var(--accent);}
+
+/* SINGLE POST */
+.post-full{max-width:720px;margin:0 auto;padding:3rem 2.5rem;}
+.back-btn{display:inline-flex;align-items:center;gap:.3rem;color:var(--muted);font-size:.85rem;cursor:pointer;margin-bottom:2rem;background:none;border:none;font-family:'Inter',sans-serif;}
+.back-btn:hover{color:var(--accent);}
+.post-full-cat{color:var(--accent);font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem;}
+.post-full-title{font-family:'Lora',serif;font-size:clamp(1.8rem,3vw,2.5rem);font-weight:700;line-height:1.2;margin-bottom:1rem;}
+.post-full-meta{display:flex;align-items:center;gap:1rem;color:var(--muted);font-size:.82rem;margin-bottom:2rem;flex-wrap:wrap;}
+.post-full-meta .author-av{width:32px;height:32px;font-size:.85rem;}
+.post-divider{height:2px;background:linear-gradient(90deg,var(--accent),transparent);border:none;margin-bottom:2rem;}
+.post-body{font-family:'Lora',serif;font-size:1.05rem;line-height:1.9;color:#2a2a2a;}
+.post-body p{margin-bottom:1.25rem;}
+.post-body h2{font-size:1.4rem;font-weight:700;margin:2rem 0 .75rem;}
+.post-body blockquote{border-left:3px solid var(--accent);padding-left:1.25rem;color:var(--muted);font-style:italic;margin:1.5rem 0;}
+.post-body code{background:var(--tag-bg);border:1px solid var(--border);border-radius:4px;padding:.15rem .4rem;font-family:monospace;font-size:.88rem;}
+.post-actions{display:flex;gap:1rem;margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--border);}
+.action-btn{display:flex;align-items:center;gap:.4rem;background:var(--tag-bg);border:1px solid var(--border);border-radius:50px;padding:.5rem 1.1rem;font-size:.82rem;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;transition:.2s;}
+.action-btn:hover{border-color:var(--accent);color:var(--accent);}
+.action-btn.liked{background:rgba(232,93,4,.08);border-color:var(--accent);color:var(--accent);}
+
+/* WRITE POST */
+.write-area{max-width:760px;margin:0 auto;padding:2.5rem;}
+.write-area h2{font-family:'Lora',serif;font-size:1.5rem;font-weight:700;margin-bottom:1.5rem;}
+.write-field{margin-bottom:1.25rem;}
+.write-field label{font-size:.78rem;font-weight:600;color:var(--muted);display:block;margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.05em;}
+.write-field input,.write-field select,.write-field textarea{width:100%;padding:.8rem 1rem;border:1.5px solid var(--border);border-radius:10px;font-size:.95rem;font-family:'Inter',sans-serif;outline:none;background:#fff;transition:.2s;}
+.write-field input:focus,.write-field textarea:focus{border-color:var(--accent);}
+.write-field textarea{min-height:300px;font-family:'Lora',serif;font-size:1rem;line-height:1.7;resize:vertical;}
+.write-field input[placeholder="Post title..."]{font-family:'Lora',serif;font-size:1.3rem;font-weight:700;}
+.publish-btn{background:var(--accent);color:#fff;border:none;padding:.9rem 2.5rem;border-radius:50px;font-size:.95rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:.2s;}
+.publish-btn:hover{opacity:.9;}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Ink<span>Space</span></div>
+  <div class="nav-search">
+    <span>🔍</span>
+    <input type="text" id="searchInput" placeholder="Search posts..." oninput="filterPosts()"/>
+  </div>
+  <div class="nav-right">
+    <button class="nav-btn ghost" onclick="showScreen('writeScreen')">✍️ Write</button>
+    <button class="nav-btn">Sign In</button>
+  </div>
+</nav>
+
+<!-- HOME -->
+<div class="screen active" id="homeScreen">
+  <div class="hero-strip">
+    <div>
+      <h1>Ideas Worth <em>Reading</em></h1>
+      <p>Discover insightful articles on technology, AI, programming, and design from passionate writers.</p>
+    </div>
+    <div class="hero-featured" onclick="openPost(0)">
+      <div class="feat-tag">⭐ Featured</div>
+      <div class="feat-title">How RAG is Changing the Future of AI Applications</div>
+      <div class="feat-meta">Tejo Sharan · 8 min read</div>
+    </div>
+  </div>
+
+  <div class="tags-bar">
+    <span class="tag-pill active" onclick="filterTag('all',this)">All</span>
+    <span class="tag-pill" onclick="filterTag('AI',this)">AI & ML</span>
+    <span class="tag-pill" onclick="filterTag('Web Dev',this)">Web Dev</span>
+    <span class="tag-pill" onclick="filterTag('Python',this)">Python</span>
+    <span class="tag-pill" onclick="filterTag('React',this)">React</span>
+    <span class="tag-pill" onclick="filterTag('Career',this)">Career</span>
+  </div>
+
+  <div class="content-area">
+    <div>
+      <div class="section-head">
+        <h2>Latest Posts</h2>
+        <select class="sort-select" onchange="sortPosts(this.value)">
+          <option value="new">Newest First</option>
+          <option value="popular">Most Popular</option>
+        </select>
+      </div>
+      <div id="postsList"></div>
+    </div>
+    <div class="sidebar">
+      <div class="sidebar-card">
+        <div class="sidebar-title">🔥 Trending</div>
+        <div id="trendingList"></div>
+      </div>
+      <div class="sidebar-card">
+        <div class="sidebar-title">🏷️ Topics</div>
+        <div class="tag-cloud" id="tagCloud"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SINGLE POST -->
+<div class="screen" id="postScreen">
+  <div class="post-full">
+    <button class="back-btn" onclick="showScreen('homeScreen')">← Back to Home</button>
+    <div class="post-full-cat" id="pf-cat"></div>
+    <div class="post-full-title" id="pf-title"></div>
+    <div class="post-full-meta">
+      <div class="author-av" id="pf-av"></div>
+      <span id="pf-author"></span>
+      <span>·</span>
+      <span id="pf-date"></span>
+      <span>·</span>
+      <span id="pf-read"></span>
+    </div>
+    <hr class="post-divider"/>
+    <div class="post-body" id="pf-body"></div>
+    <div class="post-actions">
+      <button class="action-btn" id="likeBtn" onclick="toggleLike()">❤️ <span id="likeCount">0</span> Likes</button>
+      <button class="action-btn">💬 Comment</button>
+      <button class="action-btn">🔗 Share</button>
+      <button class="action-btn">🔖 Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- WRITE -->
+<div class="screen" id="writeScreen">
+  <div class="write-area">
+    <button class="back-btn" onclick="showScreen('homeScreen')">← Back</button>
+    <h2>Write a New Post</h2>
+    <div class="write-field"><label>Title</label><input type="text" id="w-title" placeholder="Post title..."/></div>
+    <div class="write-field"><label>Category</label>
+      <select id="w-cat">
+        <option>AI & ML</option><option>Web Dev</option><option>Python</option><option>React</option><option>Career</option><option>Other</option>
+      </select>
+    </div>
+    <div class="write-field"><label>Content</label><textarea id="w-body" placeholder="Write your story here..."></textarea></div>
+    <div class="write-field"><label>Read time (minutes)</label><input type="number" id="w-read" value="5" min="1"/></div>
+    <button class="publish-btn" onclick="publishPost()">Publish Post →</button>
+  </div>
+</div>
+
+<script>
+let posts=[
+  {id:0,title:'How RAG is Changing the Future of AI Applications',cat:'AI & ML',author:'Tejo Sharan',date:'Apr 5, 2025',read:'8 min',thumb:'🤖',thumbBg:'#1e1b4b',likes:142,excerpt:'Retrieval-Augmented Generation (RAG) combines the power of large language models with external knowledge bases, enabling AI to answer questions accurately from your own documents.',body:`<p>Retrieval-Augmented Generation, or RAG, is one of the most exciting developments in AI today. It combines large language models (LLMs) with a retrieval mechanism that fetches relevant context from an external knowledge base before generating a response.</p><h2>Why RAG Matters</h2><p>Traditional LLMs have a fixed knowledge cutoff — they can't access real-time information or domain-specific documents you own. RAG solves this by first retrieving relevant chunks of text from your data, then feeding those chunks to the LLM as context.</p><blockquote>"RAG is to LLMs what Google Search is to the human brain — it gives the model access to the right information at the right time."</blockquote><h2>How It Works</h2><p>The RAG pipeline has three key steps: <code>Indexing</code>, <code>Retrieval</code>, and <code>Generation</code>. First, your documents are split into chunks and converted into vector embeddings using models like text-embedding-ada-002. These are stored in a vector database like Pinecone or ChromaDB.</p><p>When a user asks a question, the query is also embedded and compared against the stored embeddings. The most similar chunks are retrieved and injected into the prompt. The LLM then generates an answer grounded in this retrieved context.</p><h2>Real-World Applications</h2><p>RAG powers customer support bots, internal knowledge bases, legal document analysis, medical Q&A systems, and much more. It's the backbone of tools like Perplexity AI and NotebookLM.</p><p>As someone building AI projects, understanding and implementing RAG will set you apart from the crowd.</p>`},
+  {id:1,title:'Building a Full-Stack MERN App from Scratch in 2025',cat:'Web Dev',author:'Tejo Sharan',date:'Mar 28, 2025',read:'12 min',thumb:'🌐',thumbBg:'#064e3b',likes:98,excerpt:'A complete walkthrough of building a production-ready MERN stack application — from MongoDB schema design to React frontend with authentication.',body:`<p>The MERN stack remains one of the most popular choices for full-stack JavaScript development. In this guide, we'll walk through building a complete application from scratch.</p><h2>Setting Up the Backend</h2><p>Start with <code>npm init</code> and install Express, Mongoose, and CORS. Create your MongoDB connection using Mongoose and define your schemas.</p><h2>Building REST APIs</h2><p>Structure your routes logically — <code>/api/users</code>, <code>/api/posts</code>, etc. Use middleware for authentication with JWT tokens. Always validate your inputs using a library like Joi or express-validator.</p><blockquote>"Clean API design is the foundation of a maintainable full-stack application."</blockquote><h2>React Frontend</h2><p>Create your React app with Vite for faster builds. Use React Query for server state management and Axios for API calls. Structure components logically with a clear folder hierarchy.</p><p>Authentication state can be managed with React Context or Zustand for simplicity, or Redux Toolkit for larger apps.</p>`},
+  {id:2,title:'Python for Machine Learning: A Practical Roadmap',cat:'Python',author:'Tejo Sharan',date:'Mar 15, 2025',read:'10 min',thumb:'🐍',thumbBg:'#1e3a5f',likes:215,excerpt:'Your no-nonsense guide to learning Python for ML — libraries, tools, projects, and the exact order to learn them for maximum results.',body:`<p>Python is the undisputed king of machine learning and data science. Here's a practical roadmap to go from Python beginner to ML practitioner.</p><h2>Phase 1: Python Fundamentals</h2><p>Before touching ML libraries, get comfortable with Python basics — data structures, functions, OOP, and file I/O. Spend 2-3 weeks here. Resources: Python.org docs, Automate the Boring Stuff.</p><h2>Phase 2: Data Science Libraries</h2><p>Learn NumPy for numerical computing, Pandas for data manipulation, and Matplotlib/Seaborn for visualization. These are non-negotiable foundations.</p><blockquote>"Data cleaning with Pandas will take 80% of your time. Master it early."</blockquote><h2>Phase 3: Machine Learning with scikit-learn</h2><p>scikit-learn has everything you need for classical ML — linear regression, decision trees, random forests, SVMs, clustering algorithms, and pipelines. Learn the <code>fit/transform/predict</code> pattern deeply.</p><h2>Phase 4: Deep Learning</h2><p>Move to TensorFlow or PyTorch for neural networks. Start with simple feedforward networks, then CNNs for image tasks, RNNs/Transformers for text.</p>`},
+  {id:3,title:'React Hooks You Need to Know in 2025',cat:'React',author:'Tejo Sharan',date:'Mar 2, 2025',read:'7 min',thumb:'⚛️',thumbBg:'#0c1a3e',likes:176,excerpt:'Beyond useState and useEffect — a deep dive into useCallback, useMemo, useRef, useReducer, and custom hooks that make your React code production-ready.',body:`<p>Most React developers use useState and useEffect — but there's a whole universe of hooks that can dramatically improve your code quality and performance.</p><h2>useCallback and useMemo</h2><p>These are your best tools for performance optimization. <code>useCallback</code> memoizes functions to prevent unnecessary re-renders when passing callbacks to child components. <code>useMemo</code> memoizes expensive computations.</p><blockquote>"Don't over-optimize. Use useMemo and useCallback when you can measure the performance benefit."</blockquote><h2>useRef</h2><p>useRef is not just for DOM references. It's perfect for storing mutable values that don't trigger re-renders — like timers, previous values, or third-party library instances.</p><h2>useReducer</h2><p>When useState becomes complex with multiple related state transitions, switch to useReducer. It makes state changes predictable and testable, similar to Redux but built into React.</p><h2>Custom Hooks</h2><p>The real power of hooks is composability. Extract logic into custom hooks like <code>useLocalStorage</code>, <code>useFetch</code>, or <code>useDebounce</code> to keep components clean and logic reusable.</p>`},
+  {id:4,title:'How to Get Your First Tech Job as a CSE Student',cat:'Career',author:'Tejo Sharan',date:'Feb 20, 2025',read:'9 min',thumb:'💼',thumbBg:'#2d1b4e',likes:334,excerpt:'Actionable advice for CSE students — how to build the right portfolio, crack coding interviews, and land your first internship or job in tech.',body:`<p>Getting your first tech job can feel overwhelming. But with the right strategy, you can stand out from thousands of applicants. Here's what actually works.</p><h2>Build a Portfolio That Speaks</h2><p>Don't just list technologies on a resume — show working projects. Every project should solve a real problem, have a live demo, a clean GitHub repo with a detailed README, and a clear explanation of technical decisions you made.</p><blockquote>"A recruiter spends 7 seconds on a resume. Your GitHub profile needs to tell your story immediately."</blockquote><h2>DSA Isn't Everything</h2><p>Yes, practice LeetCode — but don't neglect system design, web fundamentals, and your specific domain. For AI/ML roles, know your algorithms and be able to explain your ML projects in depth.</p><h2>Network Actively</h2><p>Most jobs are filled through referrals. Connect with engineers on LinkedIn, attend hackathons, contribute to open source, and engage with tech communities online.</p><h2>Apply Strategically</h2><p>Don't spray and pray. Target 10-15 companies where you're a genuine fit. Customize your resume for each. Follow up after applying. The job search is a numbers game with a quality filter.</p>`},
+];
+
+let currentFilter='all';
+let currentPost=0;
+let liked=false;
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function filterTag(tag,el){
+  currentFilter=tag;
+  document.querySelectorAll('.tag-pill').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderPosts();
+}
+
+function filterPosts(){
+  currentFilter='search:'+document.getElementById('searchInput').value.toLowerCase();
+  renderPosts();
+}
+
+function sortPosts(by){
+  if(by==='popular')posts.sort((a,b)=>b.likes-a.likes);
+  else posts.sort((a,b)=>a.id-b.id);
+  renderPosts();
+}
+
+function renderPosts(){
+  let filtered=posts;
+  if(currentFilter.startsWith('search:')){
+    const q=currentFilter.slice(7);
+    filtered=posts.filter(p=>p.title.toLowerCase().includes(q)||p.excerpt.toLowerCase().includes(q));
+  } else if(currentFilter!=='all'){
+    filtered=posts.filter(p=>p.cat===currentFilter);
+  }
+  document.getElementById('postsList').innerHTML=filtered.length?filtered.map(p=>`
+    <div class="post-card" onclick="openPost(${p.id})">
+      <div class="post-card-top">
+        <div class="post-thumb" style="background:${p.thumbBg}">${p.thumb}</div>
+        <div style="flex:1">
+          <div class="post-meta">
+            <span class="post-cat">${p.cat}</span>
+            <span class="post-date">${p.date}</span>
+            <span class="post-read">· ${p.read} read</span>
+          </div>
+          <div class="post-title">${p.title}</div>
+          <div class="post-excerpt">${p.excerpt}</div>
+          <div class="post-footer">
+            <div class="author-row">
+              <div class="author-av">TS</div>
+              <span class="author-name">${p.author}</span>
+            </div>
+            <div class="post-likes">❤️ ${p.likes}</div>
+          </div>
+        </div>
+      </div>
+    </div>`).join(''):'<div style="text-align:center;padding:3rem;color:var(--muted)">No posts found.</div>';
+
+  document.getElementById('trendingList').innerHTML=posts.slice().sort((a,b)=>b.likes-a.likes).slice(0,4).map((p,i)=>`
+    <div class="trending-item" onclick="openPost(${p.id})">
+      <div class="trending-num">0${i+1}</div>
+      <div><div class="trending-title">${p.title}</div><div class="trending-meta">${p.read} read · ❤️ ${p.likes}</div></div>
+    </div>`).join('');
+
+  const allTags=[...new Set(posts.map(p=>p.cat))];
+  document.getElementById('tagCloud').innerHTML=allTags.map(t=>`<span class="tag-cloud-item" onclick="">${t}</span>`).join('');
+}
+
+function openPost(id){
+  const p=posts.find(x=>x.id===id);
+  currentPost=id;liked=false;
+  document.getElementById('pf-cat').textContent=p.cat;
+  document.getElementById('pf-title').textContent=p.title;
+  document.getElementById('pf-av').textContent='TS';
+  document.getElementById('pf-author').textContent=p.author;
+  document.getElementById('pf-date').textContent=p.date;
+  document.getElementById('pf-read').textContent=p.read+' read';
+  document.getElementById('pf-body').innerHTML=p.body;
+  document.getElementById('likeCount').textContent=p.likes;
+  document.getElementById('likeBtn').className='action-btn';
+  showScreen('postScreen');
+}
+
+function toggleLike(){
+  const p=posts.find(x=>x.id===currentPost);
+  liked=!liked;
+  p.likes+=liked?1:-1;
+  document.getElementById('likeCount').textContent=p.likes;
+  document.getElementById('likeBtn').className='action-btn'+(liked?' liked':'');
+}
+
+function publishPost(){
+  const title=document.getElementById('w-title').value.trim();
+  const body=document.getElementById('w-body').value.trim();
+  const cat=document.getElementById('w-cat').value;
+  const read=document.getElementById('w-read').value;
+  if(!title||!body){alert('Please fill in the title and content.');return;}
+  const emojis={AI:'🤖','Web Dev':'🌐',Python:'🐍',React:'⚛️',Career:'💼',Other:'📝'};
+  const newPost={id:posts.length,title,cat,author:'You',date:'Just now',read:read+' min',thumb:emojis[cat]||'📝',thumbBg:'#1a1a2e',likes:0,excerpt:body.slice(0,150)+'...',body:`<p>${body.replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br/>')}</p>`};
+  posts.unshift(newPost);
+  showScreen('homeScreen');
+  renderPosts();
+}
+
+renderPosts();
+</script>
+</body>
+</html>
